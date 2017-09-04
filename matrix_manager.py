@@ -46,17 +46,6 @@ class MatrixInterface(object):
     self.render.rectangle((0, 0, self.screen_width, self.screen_height),
                           fill=fill)
 
-  def DrawScreen(self, image):
-    """ Update screen buffer with new image.
-
-    Args:
-      image: Image in RGB format, constraint to matrix screen size.
-    """
-    if image.width != self.screen_width or image.height != self.screen_height:
-      raise Exception('MatrixInterface: will not display image larger or '
-                      'smaller than screen size.')
-    self.offscreen_buffer = image
-
   def Render(self):
     """ Render screen buffer to screen."""
     self.matrix.SetImage(self.image.im.id, 0, 0)

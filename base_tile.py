@@ -63,6 +63,9 @@ class BaseTile(object):
     self.START_X = self.x = x
     self.START_Y = self.y = y
     self.scrolling = scrolling
+    self.displayed = False
+    self.current_frame = 0
+    self._max_frame_count = None
     self._image_buffer = Image.new('RGB', (self.TILE_WIDTH, self.TILE_HEIGHT))
     self._image_draw = ImageDraw.Draw(self._image_buffer)
 
@@ -92,16 +95,19 @@ class BaseTile(object):
     can be cleared for the next tile.
 
     Currently, this calculates the number of frames to completely 'wipe' the
-    tile. If the tile is static, 0 is returned.
+    tile. If the tile is static, 0 is returned. The result is cached as this
+    should never change for the tile's lifetime.
 
     Returns:
       Integer estimated frames to display all information for tile, or 0 for
       no frames. This is the greater of the X or Y estimates.
     """
-    (render_x, render_y) = self._GetRenderSize()
-    x_frame_count = self._GetFrameCount(self.scrolling[0], self.START_X, self.TILE_WIDTH, render_x)
-    y_frame_count = self._GetFrameCount(self.scrolling[1], self.START_Y, self.TILE_HEIGHT, render_y)
-    return max(x_frame_count, y_frame_count)
+    if self._max_frame_count is None:
+      (render_x, render_y) = self._GetRenderSize()
+      x_frame_count = self._GetFrameCount(self.scrolling[0], self.START_X, self.TILE_WIDTH, render_x)
+      y_frame_count = self._GetFrameCount(self.scrolling[1], self.START_Y, self.TILE_HEIGHT, render_y)
+      self._max_frame_count = max(x_frame_count, y_frame_count)
+    return self._max_frame_count
 
   def _GetFrameCount(self, scrolling, start_pos, tile_width, render_width):
     """ Determines the minimum number of frames to shift off screen.
@@ -142,7 +148,9 @@ class BaseTile(object):
   def Reset(self):
     """ Reset tile frame state to initial state. """
     self.x = self.START_X
-    self.y = self.START_Y    
+    self.y = self.START_Y
+    self.current_frame = 0
+    self.displayed = False    
 
   def StepFrame(self):
     """ Advances tile 1 'frame'.
@@ -156,6 +164,7 @@ class BaseTile(object):
     'flip' the image buffer to the next frame in set of images -- if that is
     how you are using it.
     """
+    self.current_frame += 1
     (self.x, self.y) = tuple(map(operator.add, self.scrolling, (self.x, self.y)))
 
   def Render(self):
@@ -165,7 +174,16 @@ class BaseTile(object):
     specific time has elapsed; meaning you have would have to determine
     to advance the frame before rendering.
 
+    Once render is called, the tile switches to a 'displayed' state. This has
+    no effect on the tile, but enables TileManager to figure out if a tile was
+    already displayed.
+
+    By default, a black rectangle is rendered.
+
     Returns:
       Image containing rendered tile to display.
     """
+    self._image_buffer.rectangle((0, 0, self.TILE_WIDTH, self.TILE_HEIGHT),
+                                 fill=BLACK)
+    self.displayed = True
     return self._image_buffer
