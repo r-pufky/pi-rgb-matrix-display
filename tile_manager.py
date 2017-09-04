@@ -85,7 +85,7 @@ class TileManager(object):
       # check render pipeline for finished tiles, remove from pipeline, adjust
       render_pipeline = [tile for tile in render_pipeline if tile.current_frame <= tile.GetMaxFrames()]
       for tile in render_pipeline:
-        screen_space = tuple(map(operator.sub, screen_space, tile.GetTileDiemensions()))
+        screen_space = tuple(map(operator.add, screen_space, tile.GetTileDiemensions()))
 
       # Add / updates tiles to render pipeline for display.
       while screen_space > (0,0):
