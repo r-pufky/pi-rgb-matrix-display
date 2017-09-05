@@ -9,8 +9,6 @@ from tile_manager import blank
 
 class TileManager(object):
   """ Manages all tiles and their display on the matrix. """
- 
-  # STATIC PICTURES SHOULD HAVE A MINIMUM CYCLE/DISPLAY TIME.
 
   def __init__(self, tiles, matrix_size=32, chain_length=2,
                fps=1, static_lifespan=5):
