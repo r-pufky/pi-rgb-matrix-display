@@ -4,7 +4,7 @@ LED Matrix.
 
 # Installation
 This library requires the rgbmatrix.so object to be in your python path. See:
-github.com/adafruit/rpi-rgb-led-matrix for instructions on compiling.
+https://github.com/adafruit/rpi-rgb-led-matrix for instructions on compiling.
 
 Using the rgbmatrix.so library requires *root* privileges to access the GPIO
 pins.
