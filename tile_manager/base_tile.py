@@ -37,6 +37,10 @@ class BaseTile(object):
   you should set the default X/Y values beyond the tile size or below it.
   Otherwise, setting 0/0 will start the tile with the initial data displayed.
 
+  _image_draw is provided as a way to render simple drawings and shapes to the
+  image buffer. However, _image_buffer is always the image that will be
+  displayed.
+
   Attributes:
     FONT_Y_OFFSET: Integer Y offset for handling font descenders. Default: -2.
     FONT: ImageFont font to render text in. Default: helvR08.pil.
@@ -178,12 +182,12 @@ class BaseTile(object):
     no effect on the tile, but enables TileManager to figure out if a tile was
     already displayed.
 
-    By default, a black rectangle is rendered.
+    By default, a black tile is rendered.
 
     Returns:
       Image containing rendered tile to display.
     """
-    self._image_buffer.rectangle((0, 0, self.TILE_WIDTH, self.TILE_HEIGHT),
+    self._image_draw.rectangle((0, 0, self.TILE_WIDTH, self.TILE_HEIGHT),
                                  fill=BLACK)
     self.displayed = True
     return self._image_buffer
