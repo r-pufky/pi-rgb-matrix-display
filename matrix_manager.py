@@ -6,7 +6,6 @@
 # Requires rgbmatrix.so library: github.com/adafruit/rpi-rgb-led-matrix
 #
 
-import atexit
 from PIL import Image
 from PIL import ImageDraw
 from PIL import ImageFont
@@ -36,6 +35,12 @@ class MatrixInterface(object):
     self.offscreen_draw = ImageDraw.Draw(self.offscreen_buffer)
     self.FillScreen()
 
+  def __enter__(self):
+    return self
+
+  def __exit__(self, type, value, traceback):
+    self.TurnOffScreen()
+
   def FillScreen(self, fill=(0,0,0)):
     """ Fills the matrix display with a given color.
 
@@ -52,7 +57,6 @@ class MatrixInterface(object):
     """ Render screen buffer to screen."""
     self.matrix.SetImage(self.offscreen_buffer.im.id, 0, 0)
 
-  @atexit.register
   def TurnOffScreen(self):
     """ Clears and powers off the screen.
 
