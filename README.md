@@ -1,10 +1,13 @@
-# pi_rgb_tile_manager
+# pi-rgb-matrix-display
 Automatically manage and display information on your Raspberry PI &amp; RGB
 LED Matrix.
 
 # Installation
 This library requires the rgbmatrix.so object to be in your python path. See:
 github.com/adafruit/rpi-rgb-led-matrix for instructions on compiling.
+
+Using the rgbmatrix.so library requires *root* privileges to access the GPIO
+pins.
 
 Additionally, install the follow Python libraries with the follow commands: 
 
@@ -16,8 +19,8 @@ pip install Pillow
 # Usage
 ```python
 import datetime
-from pi_rgb_tile_manager import tile_manager
-from pi_rgb_tile_manager import route
+from tile_manager import tile_manager
+from tile_manager import route
 
 tiles = [route.RouteTile('A Line', [datetime.now(), datetime.now()])]
 m = tile_manager.TileManager(tiles, 32, 2)
