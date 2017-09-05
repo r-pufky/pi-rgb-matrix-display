@@ -33,7 +33,7 @@ class MatrixInterface(object):
     self.matrix = Adafruit_RGBmatrix(matrix_size, chain_length)
     self.offscreen_buffer = Image.new('RGB',
                                       (self.screen_width, self.screen_height))
-    self.render = ImageDraw.Draw(self.offscreen_buffer)
+    self.offscreen_draw = ImageDraw.Draw(self.offscreen_buffer)
     self.FillScreen()
 
   def FillScreen(self, fill=(0,0,0)):
@@ -43,12 +43,14 @@ class MatrixInterface(object):
       fill: Tuple containing (Integer: R, Integer: G, Integer: B) values.
           Default: Black (0, 0, 0).
     """
-    self.render.rectangle((0, 0, self.screen_width, self.screen_height),
-                          fill=fill)
+    self.offscreen_draw.rectangle(
+        (0, 0, self.screen_width, self.screen_height),
+        fill=fill)
+    self.Render()
 
   def Render(self):
     """ Render screen buffer to screen."""
-    self.matrix.SetImage(self.image.im.id, 0, 0)
+    self.matrix.SetImage(self.offscreen_buffer.im.id, 0, 0)
 
   @atexit.register
   def TurnOffScreen(self):
