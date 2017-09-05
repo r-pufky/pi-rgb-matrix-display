@@ -4,6 +4,7 @@
 
 import time
 from tile_manager import matrix_manager
+from tile_manager import blank
 
 
 class TileManager(object):
@@ -25,7 +26,6 @@ class TileManager(object):
     self.tiles = tiles
     self.matrix = matrix_manager.MatrixInterface(matrix_size, chain_length)
     self.fps = fps
-    self._blank_tile = base_tile.BaseTile()
     (self.max_tile_width, self.max_tile_height) = self._FindBiggestTile()
     if (self.max_tile_width > self.matrix.screen_width or
         self.max_tile_height > self.matrix.screen_height):
@@ -77,6 +77,7 @@ class TileManager(object):
     Args:
       loop: Boolean True to loop infinitely, else loop once. Default: False.
     """
+    self.matrix.FillScreen()
     screen_space = (self.matrix.screen_width, self.matrix.screen_height)
     render_pipeline = []
     current_time = previous_time = 0.0
@@ -93,7 +94,7 @@ class TileManager(object):
         if tile_index:
           tile = self.tiles[tile_index]
         else:
-          tile = self._blank_tile
+          tile = blank.BlankTile()
         tuple(map(operator.sub, screen_space, tile.GetTileDiemensions()))
         render_pipeline.append(tile)
 

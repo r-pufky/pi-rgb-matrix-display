@@ -110,5 +110,5 @@ class RouteTile(base_tile.BaseTile):
                        stop.astimezone(tz=self.TIME_ZONE).strftime(self.TIME_FORMAT),
                        font=self.FONT,
                        fill=fill)
-
+    self.displayed = True
     return self._image_buffer
