@@ -41,6 +41,11 @@ class BaseTile(object):
   image buffer. However, _image_buffer is always the image that will be
   displayed.
 
+  Static tiles will have their lifetime set via TileManager, which calculates
+  the lifespan based on the estimated FPS and desired display time for static
+  tiles. A tile is static if the display information has no 'scrolling'
+  attribute.
+
   Attributes:
     FONT_Y_OFFSET: Integer Y offset for handling font descenders. Default: -2.
     FONT: ImageFont font to render text in. Default: helvR08.pil.
@@ -73,45 +78,6 @@ class BaseTile(object):
     self._image_buffer = Image.new('RGB', (self.TILE_WIDTH, self.TILE_HEIGHT))
     self._image_draw = ImageDraw.Draw(self._image_buffer)
 
-  def GetTileDiemensions(self):
-    """ Returns Tuple (Integer: X, Integer: Y) tile diemensions in pixels.
-
-    This should be the biggest the tile will ever be.
-    """
-    return (self.TILE_WIDTH, self.TILE_HEIGHT)
-
-  def _GetRenderSize(self):
-    """ Determines the total size of the information rendered within a tile.
-
-    Information rendered may be bigger than the tile space allocated, so
-    calculate that size. This is used to determine MaxFrames based on
-    scrolling speeds.
-
-    Returns:
-      Tuple (Integer: X, Integer: Y) size of rendered information.
-    """
-    return (self.TILE_WIDTH, self.TILE_HEIGHT)
-
-  def GetMaxFrames(self):
-    """ Returns Integer total number of frames for tile.
-
-    Tile manager uses this to determine if a tile has shown everything so it
-    can be cleared for the next tile.
-
-    Currently, this calculates the number of frames to completely 'wipe' the
-    tile. If the tile is static, 0 is returned. The result is cached as this
-    should never change for the tile's lifetime.
-
-    Returns:
-      Integer estimated frames to display all information for tile, or 0 for
-      no frames. This is the greater of the X or Y estimates.
-    """
-    if self._max_frame_count is None:
-      (render_x, render_y) = self._GetRenderSize()
-      x_frame_count = self._GetFrameCount(self.scrolling[0], self.START_X, self.TILE_WIDTH, render_x)
-      y_frame_count = self._GetFrameCount(self.scrolling[1], self.START_Y, self.TILE_HEIGHT, render_y)
-      self._max_frame_count = max(x_frame_count, y_frame_count)
-    return self._max_frame_count
 
   def _GetFrameCount(self, scrolling, start_pos, tile_width, render_width):
     """ Determines the minimum number of frames to shift off screen.
@@ -148,6 +114,58 @@ class BaseTile(object):
     if move < 0:
       return 0
     return math.ceil(move/abs(scrolling))
+
+  def _GetRenderSize(self):
+    """ Determines the total size of the information rendered within a tile.
+
+    Information rendered may be bigger than the tile space allocated, so
+    calculate that size. This is used to determine MaxFrames based on
+    scrolling speeds.
+
+    Returns:
+      Tuple (Integer: X, Integer: Y) size of rendered information.
+    """
+    return (self.TILE_WIDTH, self.TILE_HEIGHT)
+
+  def GetTileDiemensions(self):
+    """ Returns Tuple (Integer: X, Integer: Y) tile diemensions in pixels.
+
+    This should be the biggest the tile will ever be.
+    """
+    return (self.TILE_WIDTH, self.TILE_HEIGHT)
+
+  def SetMaxFrameCount(self, count):
+    """ Manually set the max frame count for a tile.
+
+    This manually sets the max frame count for tile. This is used for static
+    tiles and setting their lifespan based on the calculated FPS and lifespan
+    values from the tile manager.
+
+    Args:
+      count: Integer number of frames to set.
+    """
+    self._max_frame_count = count 
+
+  def GetMaxFrames(self):
+    """ Returns Integer total number of frames for tile.
+
+    Tile manager uses this to determine if a tile has shown everything so it
+    can be cleared for the next tile.
+
+    Currently, this calculates the number of frames to completely 'wipe' the
+    tile. If the tile is static, 0 is returned. The result is cached as this
+    should never change for the tile's lifetime.
+
+    Returns:
+      Integer estimated frames to display all information for tile, or 0 for
+      no frames. This is the greater of the X or Y estimates.
+    """
+    if self._max_frame_count is None:
+      (render_x, render_y) = self._GetRenderSize()
+      x_frame_count = self._GetFrameCount(self.scrolling[0], self.START_X, self.TILE_WIDTH, render_x)
+      y_frame_count = self._GetFrameCount(self.scrolling[1], self.START_Y, self.TILE_HEIGHT, render_y)
+      self._max_frame_count = max(x_frame_count, y_frame_count)
+    return self._max_frame_count
 
   def Reset(self):
     """ Reset tile frame state to initial state. """

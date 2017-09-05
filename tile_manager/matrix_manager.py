@@ -15,6 +15,7 @@ from PIL import ImageDraw
 from PIL import ImageFont
 from rgbmatrix import Adafruit_RGBmatrix
 
+
 class MatrixInterface(object):
   """ Provides an interface to manipulate the LED Matrix Display.
 
@@ -32,7 +33,6 @@ class MatrixInterface(object):
     """
     self.matrix_size = matrix_size
     self.chain_length = chain_length
-    # todo look into setup for veritcal screens.
     self.screen_width = matrix_size * chain_length
     self.screen_height = matrix_size
     self.matrix = Adafruit_RGBmatrix(matrix_size, chain_length)

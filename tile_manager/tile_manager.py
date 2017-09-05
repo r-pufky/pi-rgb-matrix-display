@@ -12,7 +12,8 @@ class TileManager(object):
  
   # STATIC PICTURES SHOULD HAVE A MINIMUM CYCLE/DISPLAY TIME.
 
-  def __init__(self, tiles, matrix_size=32, chain_length=2, fps=1):
+  def __init__(self, tiles, matrix_size=32, chain_length=2,
+               fps=1, static_lifespan=5):
     """ Initalize tile manager.
 
     Args:
@@ -22,27 +23,36 @@ class TileManager(object):
       fps: Integer max number of frames to render a second, max 60. Default: 1.
           Raspberry Pi's have limited processing power, so 60 is not
           recommended.
+      static_lifespan: Integer number of seconds a static tile should be
+          displayed before being cleared. Default: 5 seconds.
     """
     self.tiles = tiles
     self.matrix = matrix_manager.MatrixInterface(matrix_size, chain_length)
     self.fps = fps
-    (self.max_tile_width, self.max_tile_height) = self._FindBiggestTile()
+    self.static_lifespan = static_lifespan
+    (self.max_tile_width, self.max_tile_height) = self._InitalizeTiles()
     if (self.max_tile_width > self.matrix.screen_width or
         self.max_tile_height > self.matrix.screen_height):
       raise Exception('TileManager: A tile cannot be bigger than the screen.')
 
-  def _FindBiggestTile(self):
-    """ Determines the biggest tile in the set of tiles.
+  def _InitalizeTiles(self):
+    """ Initalizes the default tile state.
+
+    This determines the biggest tile in the set of tiles, as well as set the
+    static tile display lifespan for static tiles.
 
     Returns:
       Tuple (Integer: X, Integer: Y) of max tile size loaded.
     """
     max_screen_width = 0
     max_screen_height = 0
+    static_tile_frame_count = self.static_lifespan * self.fps
     for tile in self.tiles:
       (screen_width, screen_height) = tile.GetTileDiemensions()
       max_screen_width = max(screen_width, max_screen_width)
       max_screen_height = max(screen_height, max_screen_height)
+      if tile.GetMaxFrames() == 0:
+        tile.SetMaxFrameCount(static_tile_frame_count)
     return (max_screen_width, max_screen_height)
 
   def _GetNextTile(self, size):
@@ -60,9 +70,15 @@ class TileManager(object):
         return index
 
   def _AllTilesDisplayed(self):
-    """ Return Boolean True if all tiles have been displayed. """
+    """ Return Boolean True if all tiles have been displayed.
+
+    All tiles are displayed if the displayed bit is set, and the current frame
+    count is >= max frames.
+    """
     for tile in self.tiles:
       if not tile.displayed:
+        return False
+      if tile.current_frame < tile.GetMaxFrames():
         return False
     return True
 
@@ -103,6 +119,7 @@ class TileManager(object):
       for tile in render_pipeline:
         self.matrix.offscreen_buffer.paste(tile.Render(), (composite_index, 0))
         composite_index += tile.GetTileDiemensions()[0]
+        tile.StepFrame()
       self.matrix.Render()
 
       # Hold for approximate FPS
