@@ -5,6 +5,10 @@
 #
 # Requires rgbmatrix.so library: github.com/adafruit/rpi-rgb-led-matrix
 #
+# This library requires ROOT to access the GPIO pins. If you recieve a 
+# 'SystemError: dynamic module not initialized properly' it is because you are
+# not initalizing this module with root permissions.
+#
 
 from PIL import Image
 from PIL import ImageDraw
@@ -13,6 +17,8 @@ from rgbmatrix import Adafruit_RGBmatrix
 
 class MatrixInterface(object):
   """ Provides an interface to manipulate the LED Matrix Display.
+
+  ROOT privileges are required to access the GPIO pins.
 
   Images are drawn in offscreen buffer, then the buffer is moved in place.
   """
@@ -36,9 +42,11 @@ class MatrixInterface(object):
     self.FillScreen()
 
   def __enter__(self):
+    """ Enter runtime context for matrix interface. """
     return self
 
   def __exit__(self, type, value, traceback):
+    """ Exit runtime context for matrix interface, turn screen off. """
     self.TurnOffScreen()
 
   def FillScreen(self, fill=(0,0,0)):
@@ -58,9 +66,6 @@ class MatrixInterface(object):
     self.matrix.SetImage(self.offscreen_buffer.im.id, 0, 0)
 
   def TurnOffScreen(self):
-    """ Clears and powers off the screen.
-
-    Register to always call when program exits.
-    """
+    """ Clears and powers off the screen. """
     if self.matrix:
       self.matrix.Clear()
