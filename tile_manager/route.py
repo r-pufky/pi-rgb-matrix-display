@@ -34,10 +34,15 @@ class RouteTile(base_tile.BaseTile):
   TIME_ZONE = pytz.timezone('America/Los_Angeles')
   NUMBER_STOPS = 3
   STOP_SEPARATOR = ', '
-  ROUTER_SEPARATOR = ': '
+  ROUTE_SEPARATOR = ': '
 
-  def __init__(self, x=0, y=0, scrolling=(2,0), route_name, stops):
+  def __init__(self, x=0, y=0, scrolling=(2,0), route_name=None, stops=None):
     """ Initalize route tile object.
+
+    A standard datetime object is not timezone aware and may cause undetermined
+    side-effects and errors. A datetime is timezone aware if it is created with
+    tzinfo option specified, or using the UTC construct); here's a good 101 -
+    https://howchoo.com/g/ywi5m2vkodk/working-with-datetime-objects-and-timezones-in-python 
 
     Args:
       x: Integer absolute X position of tile. Default: 0.
@@ -45,12 +50,13 @@ class RouteTile(base_tile.BaseTile):
       scrolling: Tuple (Integer: X, Integer: Y) containing scrolling
           information. Values are number of pixels to change at once along
           respective axis. Default: (2, 0) (scroll right).
-      route_name: String route name.
-      stops: List of Strings for next time on route.
+      route_name: String route name. Default: 'Test'.
+      stops: List of datetime timezone aware objects for next time on route.
+          Default: utcnow().
     """
     base_tile.BaseTile.__init__(self, x, y, scrolling)
-    self.route = route_name
-    self.stops = stops
+    self.route = route_name or 'TEST'
+    self.stops = stops or [datetime.datetime.utcnow()]
 
   def _GetRenderSize(self):
     """ Determines the total size of the information rendered within a tile.
@@ -87,28 +93,29 @@ class RouteTile(base_tile.BaseTile):
     Returns:
       Image containing rendered tile to display.
     """
-    self._image_draw((self.x, self.y + self.FONT_Y_OFFSET),
-                     '%s%s' % (self.route, self.route_separator),
-                     font=self.FONT,
-                     fill=base_tile.WHITE)
-    x = self.x + self.FONT.getsize('%s%s' % (self.route, self.route_separator))
+    now = datetime.datetime.utcnow()
+    self._image_draw.text((self.x, self.y + self.FONT_Y_OFFSET),
+                          '%s%s' % (self.route, self.ROUTE_SEPARATOR),
+                          font=self.FONT,
+                          fill=base_tile.WHITE)
+    x = self.x + self.FONT.getsize('%s%s' % (self.route, self.ROUTE_SEPARATOR))[0]
 
     for index, stop in enumerate(self.stops):      
       fill = base_tile.GREEN
-      time_delta = stop - NOW
+      time_delta = stop - now
       if time_delta < self.SHORT_TIME:
         fill = base_tile.RED
       elif time_delta < self.LONG_TIME:
         fill = base_tile.YELLOW
       if index > 0:
-        self._image_draw((x + 1, self.y + self.FONT_Y_OFFSET + 8 - 2),
-                         self.separator,
-                         font=self.FONT,
-                         fill=base_tile.GRAY)
-        x += self.FONT.getsize(self.separator)[0]
-      self._image_draw((x, self.y + self.FONT_Y_OFFSET + 8),
-                       stop.astimezone(tz=self.TIME_ZONE).strftime(self.TIME_FORMAT),
-                       font=self.FONT,
-                       fill=fill)
+        self._image_draw.text((x + 1, self.y + self.FONT_Y_OFFSET + 8 - 2),
+                              self.separator,
+                              font=self.FONT,
+                              fill=base_tile.GRAY)
+        x += self.FONT.getsize(self.STOP_SEPARATOR)[0]
+      self._image_draw.text((x, self.y + self.FONT_Y_OFFSET + 8),
+                            stop.astimezone(tz=self.TIME_ZONE).strftime(self.TIME_FORMAT),
+                            font=self.FONT,
+                            fill=fill)
     self.displayed = True
     return self._image_buffer
