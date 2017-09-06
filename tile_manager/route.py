@@ -4,9 +4,9 @@
 # This tile will render a route with stop times to a tile.
 #
 
+import base_tile
 import datetime
 import pytz
-from tile_manager import base_tile
 from PIL import Image
 from PIL import ImageDraw
 from PIL import ImageFont

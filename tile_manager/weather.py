@@ -2,10 +2,11 @@
 # Weather Tile for Tile Manager.
 #
 
-from tile_manager import base_tile
+import base_tile
+import operator
+import os
+
 from PIL import Image
-from PIL import ImageDraw
-from PIL import ImageFont
 
 
 class WeatherTile(base_tile.BaseTile):
@@ -55,7 +56,7 @@ class WeatherTile64x32(WeatherTile):
     max_height = 0
     for weather_item in self.weather:
       if weather_item not in ['id', 'description', 'icon']:
-        max_height += self.FONT.getsize(self.weather[weather_item])
+        max_height += self.FONT.getsize(str(self.weather[weather_item]))[1]
     return (self.TILE_WIDTH, max_height)
 
   def Render(self):
@@ -81,8 +82,10 @@ class WeatherTile64x32(WeatherTile):
       else:
         raise Exception('WeatherTile: icon file not found: %s' % icon)
 
+    composite_index = 0
+    y = self.y
     self._image_buffer.paste(self._icon_cache, (0, 0))
-      composite_index += self._icon_cache.width
+    composite_index += self._icon_cache.size[0]
 
     y += self._RenderText(composite_index,
                           self.y + self.FONT_Y_OFFSET,

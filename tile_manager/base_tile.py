@@ -127,23 +127,26 @@ class BaseTile(object):
     """
     return (self.TILE_WIDTH, self.TILE_HEIGHT)
 
-  def _RenderText(self, x, y, text, color=WHITE):
-    """ Renders a given text String to the image buffer.
+  def _RenderText(self, x, y, data, color=WHITE):
+    """ Renders data as a String to the image buffer.
 
     Text is rendered using the font specified in the class attribute.
 
     Args:
       x: Integer X position to start text rendering.
       y: Integer Y position to start text rendering.
-      text: String text to render to the image buffer.
+      text: Data to render to the image buffer. This must be typecastable
+          using the str() method.
       color: Tuple containing (Integer: R, Integer: G, Integer: B) values.
           Default: (255, 255, 255) (white).
 
     Returns:
       Tuple (Integer: X, Integer: Y) size of rendered text.
     """
-    self._image_draw.text((x, y), text, font=self.FONT, fill=color)
-    return self.FONT.getsize(text)
+    if not isinstance(data, str):
+      data = str(data)
+    self._image_draw.text((x, y), data, font=self.FONT, fill=color)
+    return self.FONT.getsize(data)
 
   def GetTileDiemensions(self):
     """ Returns Tuple (Integer: X, Integer: Y) tile diemensions in pixels.
