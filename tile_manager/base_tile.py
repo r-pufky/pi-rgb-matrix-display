@@ -51,8 +51,6 @@ class BaseTile(object):
     FONT: ImageFont font to render text in. Default: helvR08.pil.
     TILE_WIDTH: Integer image width. Default: 32 pixels.
     TILE_HEIGHT: Integer image height. Default: 32 pixels.
-    x: Integer absolute X position of tile.
-    y: Integer absolute Y position of tile.
   """
   FONT_Y_OFFSET = -2
   FONT = ImageFont.load(os.path.join(
@@ -138,7 +136,7 @@ class BaseTile(object):
       x: Integer X position to start text rendering.
       y: Integer Y position to start text rendering.
       text: String text to render to the image buffer.
-      color: containing (Integer: R, Integer: G, Integer: B) values.
+      color: Tuple containing (Integer: R, Integer: G, Integer: B) values.
           Default: (255, 255, 255) (white).
 
     Returns:
