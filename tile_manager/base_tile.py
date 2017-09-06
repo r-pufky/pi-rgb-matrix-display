@@ -55,7 +55,9 @@ class BaseTile(object):
     y: Integer absolute Y position of tile.
   """
   FONT_Y_OFFSET = -2
-  FONT = ImageFont.load(os.path.dirname(os.path.realpath(__file__)) + '/helvR08.pil')
+  FONT = ImageFont.load(os.path.join(
+      os.path.dirname(os.path.realpath(__file__)),
+      'helvR08.pil'))
   TILE_WIDTH = 32
   TILE_HEIGHT = 32
 
@@ -126,6 +128,24 @@ class BaseTile(object):
       Tuple (Integer: X, Integer: Y) size of rendered information.
     """
     return (self.TILE_WIDTH, self.TILE_HEIGHT)
+
+  def _RenderText(self, x, y, text, color=WHITE):
+    """ Renders a given text String to the image buffer.
+
+    Text is rendered using the font specified in the class attribute.
+
+    Args:
+      x: Integer X position to start text rendering.
+      y: Integer Y position to start text rendering.
+      text: String text to render to the image buffer.
+      color: containing (Integer: R, Integer: G, Integer: B) values.
+          Default: (255, 255, 255) (white).
+
+    Returns:
+      Tuple (Integer: X, Integer: Y) size of rendered text.
+    """
+    self._image_draw.text((x, y), text, font=self.FONT, fill=color)
+    return self.FONT.getsize(text)
 
   def GetTileDiemensions(self):
     """ Returns Tuple (Integer: X, Integer: Y) tile diemensions in pixels.

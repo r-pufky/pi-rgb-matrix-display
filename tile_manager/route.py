@@ -94,11 +94,10 @@ class RouteTile(base_tile.BaseTile):
       Image containing rendered tile to display.
     """
     now = datetime.datetime.utcnow()
-    self._image_draw.text((self.x, self.y + self.FONT_Y_OFFSET),
-                          '%s%s' % (self.route, self.ROUTE_SEPARATOR),
-                          font=self.FONT,
-                          fill=base_tile.WHITE)
-    x = self.x + self.FONT.getsize('%s%s' % (self.route, self.ROUTE_SEPARATOR))[0]
+    x = self.x + self._RenderText(
+        self.x,
+        self.y + self.FONT_Y_OFFSET,
+        '%s%s' % (self.route, self.ROUTE_SEPARATOR))[0]
 
     for index, stop in enumerate(self.stops):      
       fill = base_tile.GREEN
@@ -108,14 +107,14 @@ class RouteTile(base_tile.BaseTile):
       elif time_delta < self.LONG_TIME:
         fill = base_tile.YELLOW
       if index > 0:
-        self._image_draw.text((x + 1, self.y + self.FONT_Y_OFFSET + 8 - 2),
-                              self.separator,
-                              font=self.FONT,
-                              fill=base_tile.GRAY)
-        x += self.FONT.getsize(self.STOP_SEPARATOR)[0]
-      self._image_draw.text((x, self.y + self.FONT_Y_OFFSET + 8),
-                            stop.astimezone(tz=self.TIME_ZONE).strftime(self.TIME_FORMAT),
-                            font=self.FONT,
-                            fill=fill)
+        x += self._RenderText(x + 1,
+                              self.y + self.FONT_Y_OFFSET + 8 - 2),
+                              self.STOP_SEPARATOR,
+                              color=base_tile.GRAY)[0]
+      self._RenderText(
+          x,
+          self.y + self.FONT_Y_OFFSET + 8,
+          stop.astimezone(tz=self.TIME_ZONE).strftime(self.TIME_FORMAT),
+          color=fill)
     self.displayed = True
     return self._image_buffer
