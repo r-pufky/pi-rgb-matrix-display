@@ -11,6 +11,7 @@ Original Icons can be accessed via URL here:
 * http://openweathermap.org/img/w/*.png
 
 Create Commons v4.0 License https://creativecommons.org/licenses/by-sa/4.0/
+
 This is included in this directory as [LICENSE](LICENSE)
 
 
