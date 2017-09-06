@@ -132,3 +132,4 @@ class TileManager(object):
         if not loop:
           break
         self._ResetTiles()
+        render_pipeline.clear()
