@@ -16,15 +16,10 @@ class WeatherTile(base_tile.BaseTile):
   ICON_LIBRARY = (os.path.join(os.path.dirname(os.path.realpath(__file__)),
                                'openweathermap.org-icons'))
 
-  def __init__(self, x=0, y=0, scrolling=(0,0), weather=None):
+  def __init__(self, weather, x=0, y=0, scrolling=(0,0)):
     """ Initalize weather tile.
 
     Args:
-      x: Integer absolute X position of tile. Default: 0.
-      y: Integer absolute Y position of tile. Default: 0.
-      scrolling: Tuple (Integer: X, Integer: Y) containing scrolling
-          information. Values are number of pixels to change at once along
-          respective axis. Default: (0, 0) (no scrolling).
       weather: Dictionary containing the following weather information:
           {'id': Integer weather type,
            'main': String main weather description,
@@ -34,10 +29,14 @@ class WeatherTile(base_tile.BaseTile):
            'temp_min': Integer minimum temperature,
            'temp_max': Integer maximum temperature,
            'humidity': Integer current humidity}.
-           Default
+      x: Integer absolute X position of tile. Default: 0.
+      y: Integer absolute Y position of tile. Default: 0.
+      scrolling: Tuple (Integer: X, Integer: Y) containing scrolling
+          information. Values are number of pixels to change at once along
+          respective axis. Default: (0, 0) (no scrolling).
     """
     base_tile.BaseTile.__init__(self, x, y, scrolling)
-    self.weather = weather or {'icon': '01d'}
+    self.weather = weather
     self._icon_cache = None
 
 class WeatherTile64x32(WeatherTile):
@@ -57,7 +56,7 @@ class WeatherTile64x32(WeatherTile):
     for weather_item in self.weather:
       if weather_item not in ['id', 'description', 'icon']:
         max_height += self.FONT.getsize(self.weather[weather_item])
-    return (self.TILE_HEIGHT, max_height)
+    return (self.TILE_WIDTH, max_height)
 
   def Render(self):
     """ Returns Image buffer for tile to render.
