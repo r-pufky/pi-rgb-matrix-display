@@ -101,6 +101,7 @@ class TileManager(object):
       render_pipeline = [tile for tile in render_pipeline if tile.current_frame <= tile.GetMaxFrames()]
       for tile in render_pipeline:
         screen_space = tuple(map(operator.add, screen_space, tile.GetTileDiemensions()))
+        tile.StepFrame()
 
       # Add / updates tiles to render pipeline for display.
       while screen_space > (0,0):
@@ -117,7 +118,6 @@ class TileManager(object):
       for tile in render_pipeline:
         self.matrix.offscreen_buffer.paste(tile.Render(), (composite_index, 0))
         composite_index += tile.GetTileDiemensions()[0]
-        tile.StepFrame()
       self.matrix.Render()
 
       # Hold for approximate FPS
