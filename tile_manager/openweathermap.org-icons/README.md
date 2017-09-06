@@ -6,6 +6,7 @@ openweathermap.org, under the creative commons v4.0 license.
 
 Original Icons are found here:
 * http://openweathermap.org/weather-conditions
+
 Original Icons can be accessed via URL here:
 * http://openweathermap.org/img/w/*.png
 
