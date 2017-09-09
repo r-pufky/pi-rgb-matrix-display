@@ -93,7 +93,7 @@ class RouteTile(base_tile.BaseTile):
     Returns:
       Image containing rendered tile to display.
     """
-    now = datetime.datetime.utcnow()
+    now = datetime.datetime.now(self.TIME_ZONE)
     x = self.x + self._RenderText(
         self.x,
         self.y + self.FONT_Y_OFFSET,
@@ -108,7 +108,7 @@ class RouteTile(base_tile.BaseTile):
         fill = base_tile.YELLOW
       if index > 0:
         x += self._RenderText(x + 1,
-                              self.y + self.FONT_Y_OFFSET + 8 - 2),
+                              self.y + self.FONT_Y_OFFSET + 8 - 2,
                               self.STOP_SEPARATOR,
                               color=base_tile.GRAY)[0]
       self._RenderText(

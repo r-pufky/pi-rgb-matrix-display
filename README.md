@@ -27,6 +27,14 @@ m = tile_manager.TileManager(tiles, 32, 2)
 m.Run(loop=True)
 ```
 
+# Testing
+Standard Python unit testing framework tests apply.
+
+```bash
+cd pi-rgb-matrix-display/tile_manager
+python -m unittest discover -p '*_test.py'
+```
+
 # Other Files
 Both [helvR08.pil](helvR08.pil) and [helvR08.pbm](helvR08.phm) are included in
 this repository for ease of use. These are free bitmap fonts from the X11R6

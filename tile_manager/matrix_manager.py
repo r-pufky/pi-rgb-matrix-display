@@ -13,8 +13,10 @@
 from PIL import Image
 from PIL import ImageDraw
 from PIL import ImageFont
-from rgbmatrix import Adafruit_RGBmatrix
-
+try:
+  from rgbmatrix import Adafruit_RGBmatrix
+except ImportError as e:
+  raise ImportError('\n\n\nrgbmatrix.so NOT DETECTED, ABORTING. %s\n\n' % e)
 
 
 class MatrixInterface(object):
