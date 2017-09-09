@@ -31,14 +31,15 @@ class TestWeatherTile(unittest.TestCase):
     """ Ensure a large render size is constrained to 64 pixels wide. """
     data = {'id': 208,
             'main': 'sunny',
-            'description': 'This is over a 64 pixel long description for the weather tile',
+            'description': ('This is over a 64 pixel long description for the '
+                            'weather tile'),
             'icon': '01d',
             'temp': 72,
             'temp_min': 68,
             'temp_max': 78,
             'humidity': 23}
     tile = weather.WeatherTile64x32(data)
-    self.assertEqual(tile._GetRenderSize(), (64,55))
+    self.assertEqual(tile._GetRenderSize(), (64, 55))
 
   def testRender(self):
     """ Ensure render works properly. """
