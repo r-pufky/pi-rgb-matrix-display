@@ -9,14 +9,20 @@
 # 'SystemError: dynamic module not initialized properly' it is because you are
 # not initalizing this module with root permissions.
 #
+# Import mangling is used here to support testing for systems without the
+# rgbmatrix.so object installed.
+#
 
+import logging
 from PIL import Image
 from PIL import ImageDraw
 from PIL import ImageFont
+
 try:
-  from rgbmatrix import Adafruit_RGBmatrix
+  import rgbmatrix
 except ImportError as e:
-  raise ImportError('\n\n\nrgbmatrix.so NOT DETECTED, ABORTING. %s\n\n' % e)
+  logging.error('rgbmatrix.so not found! Loading mock library.')
+  import rgbmatrix_mock as rgbmatrix
 
 
 class MatrixInterface(object):
@@ -48,7 +54,7 @@ class MatrixInterface(object):
     self.screen_width = len(self.screen_shape[0]) * self.matrix_size
     self.screen_height = len(self.screen_shape) * self.matrix_size
 
-    self.matrix = Adafruit_RGBmatrix(matrix_size, chain_length)
+    self.matrix = rgbmatrix.Adafruit_RGBmatrix(matrix_size, chain_length)
     self.matrix.SetWriteCycles(write_cycles)
 
     self.offscreen_buffer = Image.new('RGB',
