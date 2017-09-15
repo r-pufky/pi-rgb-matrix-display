@@ -188,6 +188,10 @@ class BaseTile(object):
       self._max_frame_count = max(x_frame_count, y_frame_count)
     return self._max_frame_count
 
+  def IsExpired(self):
+    """ Boolean True if the tile has expired. """
+    return (self.current_frame > self.GetMaxFrames())
+
   def Reset(self):
     """ Reset tile frame state to initial state. """
     self.x = self.START_X

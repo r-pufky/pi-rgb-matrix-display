@@ -86,6 +86,12 @@ class TestBaseTile(unittest.TestCase):
     self.assertTrue(self.tile.displayed)
     self.assertIsInstance(image, PIL.Image.Image)
 
+  def testIsExpired(self):
+    """ Ensure a tile detects it's expired properly. """
+    self.assertFalse(self.tile.IsExpired())
+    self.tile.current_frame = 100
+    self.assertTrue(self.tile.IsExpired())
+
 
 if __name__ == '__main__':
   unittest.main()
