@@ -1,82 +1,94 @@
 #
-# Requires the rgbmatrix.so library to exist for test to work.
+# Matrix Manager unittests.
 #
 
 import matrix_manager
-import mock
-import PIL
 import unittest
 
 
 class TestMatrixManager(unittest.TestCase):
-  """
-  _GetRenderSize
-  Render
-  """
+  """ Test matrix manager. """
 
   def setUp(self):
     """ Initalize Matrix Manager test setup. """
     self.matrix = matrix_manager.MatrixInterface()
     self.one = [None]
     self.two = [None, None]
-    self.three = [None, None, None]
-    self.four = [None, None, None, None]
-
-  def testGetMatrixShape128x128(self):
-    """ Ensure 128x128 is determined properly. """
-    m = matrix_manager.MatrixInterface(matrix_size=64,
-                                       chain_length=4)
-    self.assertEqual(m.GetMatrixShape(),
-                     [self.four, self.four, self.four, self.four])
 
   def testGetMatrixShape64x64(self):
-    """ Ensure 128x128 is determined properly. """
-    m = matrix_manager.MatrixInterface(matrix_size=64,
+    """ Ensure 64x64 is determined properly. """
+    m = matrix_manager.MatrixInterface(led_rows=64,
                                        chain_length=2)
-    self.assertEqual(m.GetMatrixShape(),
-                     [self.two, self.two])
+    self.assertEqual(m.shape, [self.one])
+    self.assertEqual(m.width, 64)
+    self.assertEqual(m.height, 64)
+    self.assertEqual(m.tile_size, 64)
 
-  def testGetMatrixShape128x32(self):
-    """ Ensure 128x128 is determined properly. """
-    m = matrix_manager.MatrixInterface(matrix_size=32,
-                                       chain_length=4)
-    self.assertEqual(m.GetMatrixShape(), [self.four])
-
-  def testGetMatrixShape96x32(self):
-    """ Ensure 128x128 is determined properly. """
-    m = matrix_manager.MatrixInterface(matrix_size=32,
-                                       chain_length=3)
-    self.assertEqual(m.GetMatrixShape(), [self.three])
+  def testGetMatrixShape64x64SmallTile(self):
+    """ Ensure 64x64 with small tiles is determined properly. """
+    m = matrix_manager.MatrixInterface(led_rows=64,
+                                       chain_length=2,
+                                       tile_size=32)
+    self.assertEqual(m.shape, [self.two, self.two])
+    self.assertEqual(m.width, 64)
+    self.assertEqual(m.height, 64)
+    self.assertEqual(m.tile_size, 32)
 
   def testGetMatrixShape64x32(self):
-    """ Ensure 128x128 is determined properly. """
-    m = matrix_manager.MatrixInterface(matrix_size=32,
+    """ Ensure 64x32 is determined properly. """
+    m = matrix_manager.MatrixInterface(led_rows=32,
                                        chain_length=2)
-    self.assertEqual(m.GetMatrixShape(), [self.two])
+    self.assertEqual(m.shape, [self.two])
+    self.assertEqual(m.width, 64)
+    self.assertEqual(m.height, 32)
+    self.assertEqual(m.tile_size, 32)
 
   def testGetMatrixShape32x32(self):
-    """ Ensure 128x128 is determined properly. """
-    m = matrix_manager.MatrixInterface(matrix_size=32,
+    """ Ensure 32x32 is determined properly. """
+    m = matrix_manager.MatrixInterface(led_rows=32,
                                        chain_length=1)
-    self.assertEqual(m.GetMatrixShape(), [self.one])
+    self.assertEqual(m.shape, [self.one])
+    self.assertEqual(m.width, 32)
+    self.assertEqual(m.height, 32)
+    self.assertEqual(m.tile_size, 32)
+
+  def testGetMatrixShape32x32SmallTile(self):
+    """ Ensure 32x32 is determined properly. """
+    m = matrix_manager.MatrixInterface(led_rows=32,
+                                       chain_length=1,
+                                       tile_size=16)
+    self.assertEqual(m.shape, [self.two, self.two])
+    self.assertEqual(m.width, 32)
+    self.assertEqual(m.height, 32)
+    self.assertEqual(m.tile_size, 16)
 
   def testGetMatrixShape32x16(self):
-    """ Ensure 128x128 is determined properly. """
-    m = matrix_manager.MatrixInterface(matrix_size=16,
+    """ Ensure 32x16 is determined properly. """
+    m = matrix_manager.MatrixInterface(led_rows=16,
                                        chain_length=2)
-    self.assertEqual(m.GetMatrixShape(), [self.two])
+    self.assertEqual(m.shape, [self.two])
+    self.assertEqual(m.width, 32)
+    self.assertEqual(m.height, 16)
+    self.assertEqual(m.tile_size, 16)
 
   def testGetMatrixShape16x16(self):
-    """ Ensure 128x128 is determined properly. """
-    m = matrix_manager.MatrixInterface(matrix_size=16,
+    """ Ensure 16x16 is determined properly. """
+    m = matrix_manager.MatrixInterface(led_rows=16,
                                        chain_length=1)
-    self.assertEqual(m.GetMatrixShape(), [self.one])
+    self.assertEqual(m.shape, [self.one])
+    self.assertEqual(m.width, 16)
+    self.assertEqual(m.height, 16)
+    self.assertEqual(m.tile_size, 16)
 
   def testGetMatrixShape8x8(self):
-    """ Ensure 128x128 is determined properly. """
-    m = matrix_manager.MatrixInterface(matrix_size=8,
+    """ Ensure 8x8 is determined properly. """
+    m = matrix_manager.MatrixInterface(led_rows=8,
                                        chain_length=1)
-    self.assertEqual(m.GetMatrixShape(), [self.one])
+    self.assertEqual(m.shape, [self.one])
+    self.assertEqual(m.width, 8)
+    self.assertEqual(m.height, 8)
+    self.assertEqual(m.tile_size, 8)
+
 
 if __name__ == '__main__':
   unittest.main()
