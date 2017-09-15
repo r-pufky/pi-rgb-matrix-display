@@ -56,7 +56,7 @@ class RouteTile(base_tile.BaseTile):
     """
     base_tile.BaseTile.__init__(self, x, y, scrolling)
     self.route = route_name or 'TEST'
-    self.stops = stops or [datetime.datetime.utcnow()]
+    self.stops = stops or [datetime.datetime.now(self.TIME_ZONE)]
 
   def _GetRenderSize(self):
     """ Determines the total size of the information rendered within a tile.
