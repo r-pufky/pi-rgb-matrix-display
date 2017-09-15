@@ -122,8 +122,8 @@ class MatrixInterface(object):
     if self.led_rows == 8:
       self.width = self.height = self.led_rows
     
-    tiles_x = self.width / self.tile_size
-    tiles_y = self.height / self.tile_size
+    tiles_x = int(self.width / self.tile_size)
+    tiles_y = int(self.height / self.tile_size)
     self.shape = [[None for i in range(tiles_x)] for i in range(tiles_y)]
 
   def FillScreen(self, fill=(0,0,0)):
