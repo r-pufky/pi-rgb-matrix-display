@@ -27,7 +27,7 @@ class TestRouteTile(unittest.TestCase):
 
   def testGetRenderSize(self):
     """ Ensure the tile can calculate the rendered object size correctly. """
-    self.assertEqual(self.tile._GetRenderSize(), (26, 11))
+    self.assertEqual(self.tile._GetRenderSize(), (25, 32))
 
   def testRender(self):
     """ Ensure render works properly. """

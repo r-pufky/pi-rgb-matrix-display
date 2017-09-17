@@ -75,6 +75,8 @@ class WeatherTile64x32(WeatherTile):
     Returns:
       Image containing rendered tile to display.
     """
+    self._image_draw.rectangle((0, 0, self.TILE_WIDTH, self.TILE_HEIGHT),
+                                fill=base_tile.BLACK)
     if not self._icon_cache:
       icon = os.path.join(self.ICON_LIBRARY, '%s.png' % self.weather['icon'])
       if os.path.isfile(icon):
@@ -101,7 +103,7 @@ class WeatherTile64x32(WeatherTile):
                           'H: %s' % self.weather['temp_max'])[1]
     y += self._RenderText(composite_index,
                           y + self.FONT_Y_OFFSET,
-                          self.weather['humidity'])[1]
+                          '%%: %s' % self.weather['humidity'])[1]
 
     self.displayed = True
     return self._image_buffer

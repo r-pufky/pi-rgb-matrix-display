@@ -37,6 +37,12 @@ class BaseTile(object):
   you should set the default X/Y values beyond the tile size or below it.
   Otherwise, setting 0/0 will start the tile with the initial data displayed.
 
+  Y: Positive values move down, Negative values move up
+  X: Positive values move right, Negative values move left
+
+  If you get a screen wiping effect, ensure that you are clearing or filling
+  the image buffer before re-drawing text.
+
   _image_draw is provided as a way to render simple drawings and shapes to the
   image buffer. However, _image_buffer is always the image that will be
   displayed.
@@ -132,6 +138,9 @@ class BaseTile(object):
 
     Text is rendered using the font specified in the class attribute.
 
+    A space is added to the end of the data, as otherwise the font is cut off
+    with a one pixel column.
+
     Args:
       x: Integer X position to start text rendering.
       y: Integer Y position to start text rendering.
@@ -145,7 +154,7 @@ class BaseTile(object):
     """
     if not isinstance(data, str):
       data = str(data)
-    self._image_draw.text((x, y), data, font=self.FONT, fill=color)
+    self._image_draw.text((x, y), '%s ' % data, font=self.FONT, fill=color)
     return self.FONT.getsize(data)
 
   def GetTileDiemensions(self):

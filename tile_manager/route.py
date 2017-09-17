@@ -6,10 +6,12 @@
 
 import base_tile
 import datetime
+import math
 import pytz
 from PIL import Image
 from PIL import ImageDraw
 from PIL import ImageFont
+
 
 class RouteTile(base_tile.BaseTile):
   """ Tile used to handle routes and stops.
@@ -24,19 +26,15 @@ class RouteTile(base_tile.BaseTile):
     TIME_FORMAT: String datetime strftime format for stops. Default: '%H:%M'.
     TIME_ZONE: pytz.timezone timezone to display time in.
         Default: 'America/Los_Angeles'.
-    NUMBER_STOPS: Integer max number of stops to display for route. Default: 3.
-    STOP_SEPARATOR: String separator for listing stops. Default: ', '.
-    ROUTER_SEPARATOR: String separator for listing routes. Default: ': '.
+    NUMBER_STOPS: Integer max number of stops to display for route. Default: 4.
   """
   SHORT_TIME = datetime.timedelta(minutes=5)
   LONG_TIME = datetime.timedelta(minutes=10)
   TIME_FORMAT = '%H:%M'
   TIME_ZONE = pytz.timezone('America/Los_Angeles')
-  NUMBER_STOPS = 3
-  STOP_SEPARATOR = ', '
-  ROUTE_SEPARATOR = ': '
+  NUMBER_STOPS = 4
 
-  def __init__(self, x=0, y=0, scrolling=(2,0), route_name=None, stops=None):
+  def __init__(self, x=0, y=0, scrolling=(-2,0), route_name=None, stops=None):
     """ Initalize route tile object.
 
     A standard datetime object is not timezone aware and may cause undetermined
@@ -57,6 +55,10 @@ class RouteTile(base_tile.BaseTile):
     base_tile.BaseTile.__init__(self, x, y, scrolling)
     self.route = route_name or 'TEST'
     self.stops = stops or [datetime.datetime.now(self.TIME_ZONE)]
+    self._stop_width = self.FONT.getsize(
+        datetime.datetime.now(self.TIME_ZONE)
+            .astimezone(tz=self.TIME_ZONE)
+            .strftime(self.TIME_FORMAT))[0] + 3
 
   def _GetRenderSize(self):
     """ Determines the total size of the information rendered within a tile.
@@ -68,16 +70,8 @@ class RouteTile(base_tile.BaseTile):
     Returns:
       Tuple (Integer: X, Integer: Y) size of rendered information.
     """
-    max_width = 0
-    max_height = 0
-    # wrong, this should be a combined list of everything.
-    for stop_time in self.stops:
-      (width, height) = self.FONT.getsize('%s%s' % (
-          stop_time.astimezone(tz=self.TIME_ZONE).strftime(self.TIME_FORMAT),
-          self.STOP_SEPARATOR))
-      max_width = max(width, max_width)
-      max_height = max(height, max_height)
-    return (max_width, max_height)
+    stop_columns = math.ceil(min(len(self.stops), self.NUMBER_STOPS) / 2)
+    return (stop_columns * self._stop_width, self.TILE_HEIGHT)
 
   def Render(self):
     """ Returns Image buffer for tile to render.
@@ -86,18 +80,20 @@ class RouteTile(base_tile.BaseTile):
     specific time has elapsed; meaning you have would have to determine
     to advance the frame before rendering.
 
-    [route][rout separator][stop][stop separator][stop]
+    [route]
+    [stop1] [stop3]
+    [stop2] [stop4]
 
     Text is rendered based from the tile x/y absolute position.
 
     Returns:
       Image containing rendered tile to display.
     """
+    self._image_draw.rectangle((0, 0, self.TILE_WIDTH, self.TILE_HEIGHT),
+                                fill=base_tile.BLACK)
     now = datetime.datetime.now(self.TIME_ZONE)
-    x = self.x + self._RenderText(
-        self.x,
-        self.y + self.FONT_Y_OFFSET,
-        '%s%s' % (self.route, self.ROUTE_SEPARATOR))[0]
+    x = self.x
+    y = route_y = self._RenderText(0, self.y + self.FONT_Y_OFFSET, self.route)[1]
 
     for index, stop in enumerate(self.stops):      
       fill = base_tile.GREEN
@@ -106,15 +102,18 @@ class RouteTile(base_tile.BaseTile):
         fill = base_tile.RED
       elif time_delta < self.LONG_TIME:
         fill = base_tile.YELLOW
-      if index > 0:
-        x += self._RenderText(x + 1,
-                              self.y + self.FONT_Y_OFFSET + 8 - 2,
-                              self.STOP_SEPARATOR,
-                              color=base_tile.GRAY)[0]
-      self._RenderText(
+      
+      if index % 2 == 0 and index > 0:
+        x += self._stop_width
+        y = route_y
+      if index > self.NUMBER_STOPS:
+        break
+
+      y += self._RenderText(
           x,
-          self.y + self.FONT_Y_OFFSET + 8,
-          stop.astimezone(tz=self.TIME_ZONE).strftime(self.TIME_FORMAT),
-          color=fill)
+          y + self.FONT_Y_OFFSET,
+          ' %s' % stop.astimezone(tz=self.TIME_ZONE).strftime(self.TIME_FORMAT),
+          color=fill)[1]
+
     self.displayed = True
     return self._image_buffer
