@@ -2,9 +2,9 @@
 # Tile Manager for LED RGB Matrix Display.
 # 
 
-import time
-import matrix_manager
 import blank
+import matrix_manager
+import time
 
 
 class TileManager(object):
@@ -142,8 +142,8 @@ class TileManager(object):
           if tile_index == -1 or self.tiles[tile_index].IsExpired():
             self.render_pipeline[y_index][x_index] = None
           elif last_tile_index != tile_index:
+            self.tiles[tile_index].StepFrame()
             last_tile_index = tile_index
-            self.tiles[last_tile_index].StepFrame()
 
   def _RenderAddNewTiles(self):
     """ Add new tiles to render pipeline if space exists.
@@ -200,7 +200,6 @@ class TileManager(object):
       loop: Boolean True to loop infinitely, else loop once. Default: False.
     """
     self.matrix.FillScreen()
-
     while True:
       self._RenderPruneAndTick()
       self._RenderAddNewTiles()

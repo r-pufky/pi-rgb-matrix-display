@@ -2,13 +2,15 @@
 # TileManager unittest.
 #
 
-import unittest
-import tile_manager
 import blank
-import route
-import weather
+import datetime
 import math
 import operator
+import pytz
+import route
+import tile_manager
+import unittest
+import weather
 from PIL import Image
 from functools import reduce
 
@@ -226,7 +228,32 @@ class TestRenderPipelineTileManager(unittest.TestCase):
     manager._RenderToMatrix()
     self.AssertCompareImages(manager.matrix.offscreen_buffer,
                              'testdata/to_matrix_multiline.png')
-    
+
+class FullTileManagerTest(unittest.TestCase):
+  """ Test the tile manager run loop.
+
+  TODO: Implement a Image.save feature in the matrix pipeline to compare
+      expected steps through a 'correctly' displayed image.
+  """
+
+  def testFullLoop(self):
+    weather_large = weather.WeatherTile64x32({'id': 208,
+                 'main': 'other',
+                 'description': 'sunny and clear.',
+                 'icon': '01d',
+                 'temp': 72,
+                 'temp_min': 68,
+                 'temp_max': 78,
+                 'humidity': 23}, scrolling=(0,-2))
+    stops = [
+        datetime.datetime(2017, 1, 1, 9, 0, tzinfo=pytz.timezone('America/Los_Angeles')),
+        datetime.datetime(2017, 10, 11, 10, 0, tzinfo=pytz.timezone('America/Los_Angeles')),
+        datetime.datetime(2017, 11, 11, 11, 0, tzinfo=pytz.timezone('America/Los_Angeles')),
+        datetime.datetime(2017, 12, 12, 12, 0, tzinfo=pytz.timezone('America/Los_Angeles'))]
+    tile = route.RouteTile(stops=stops)
+    manager = tile_manager.TileManager([weather_large, tile], 32, 2)
+    manager.Run()
+
 
 if __name__ == '__main__':
   unittest.main()
