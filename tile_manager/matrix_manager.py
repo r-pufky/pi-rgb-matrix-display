@@ -10,7 +10,10 @@
 # not initalizing this module with root permissions.
 #
 # Import mangling is used here to support testing for systems without the
-# rgbmatrix.so object installed.
+# rgbmatrix.so object installed. For all tests to pass, the mock library must be
+# used, so the rendering buffer can be verified for accuracy. If tests fails,
+# ensure that the rgbmatrix.so library is not installed *OR* manually change
+# this import for test verificatin and change it back when deploying.
 #
 
 import logging

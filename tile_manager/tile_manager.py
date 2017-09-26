@@ -58,14 +58,14 @@ class TileManager(object):
           the matrix_manager.
     """
     self.tiles = tiles
-    self.matrix = matrix_manager.MatrixInterface(led_rows, chain_length, write_cycles, tile_size)
+    self.matrix = matrix_manager.MatrixInterface(led_rows,
+                                                 chain_length,
+                                                 write_cycles,
+                                                 tile_size)
     self.fps = fps
     self.static_lifespan = static_lifespan
     self.render_pipeline = self.matrix.shape
     (self.max_tile_width, self.max_tile_height) = self._InitalizeTiles()
-    if (self.max_tile_width > self.matrix.width or
-        self.max_tile_height > self.matrix.height):
-      raise Exception('TileManager: A tile cannot be bigger than the screen.')
     self._current_time = 0.0
     self._previous_time = 0.0
 
@@ -77,16 +77,25 @@ class TileManager(object):
 
     Returns:
       Tuple (Integer: X, Integer: Y) of max tile size loaded.
+
+    Raises:
+      Exception if a tile used is larger than the screen matrix size.
     """
     max_screen_width = 0
     max_screen_height = 0
     static_tile_frame_count = self.static_lifespan * self.fps
+
     for tile in self.tiles:
       (screen_width, screen_height) = tile.GetTileDiemensions()
       max_screen_width = max(screen_width, max_screen_width)
       max_screen_height = max(screen_height, max_screen_height)
       if tile.GetMaxFrames() == 0:
         tile.SetMaxFrameCount(static_tile_frame_count)
+
+    if (max_screen_width > self.matrix.width or
+        max_screen_height > self.matrix.height):
+      raise Exception('TileManager: A tile cannot be bigger than the screen.')
+
     return (max_screen_width, max_screen_height)
 
   def _GetNextTile(self, size):
@@ -162,8 +171,9 @@ class TileManager(object):
               (total_empty_tiles * self.matrix.tile_size,
                self.matrix.tile_size))
           if new_tile_index is not None:
-            adjust_space = int(self.tiles[new_tile_index].GetTileDiemensions()[0] /
-                               self.matrix.tile_size)
+            adjust_space = int(
+                  self.tiles[new_tile_index].GetTileDiemensions()[0] /
+                  self.matrix.tile_size)
             for i in range(x_index, x_index + adjust_space):
               self.render_pipeline[y_index][i] = new_tile_index
           else:
@@ -176,9 +186,13 @@ class TileManager(object):
     for y_index, y_list in enumerate(self.render_pipeline):
       for x_index, tile_index in enumerate(y_list):
         if tile_index == -1:
-          self.matrix.offscreen_buffer.paste(blank.BlankTile().Render(), (x_composite_index, y_composite_index))
+          self.matrix.offscreen_buffer.paste(
+              blank.BlankTile().Render(),
+              (x_composite_index, y_composite_index))
         elif last_tile_index != tile_index:
-          self.matrix.offscreen_buffer.paste(self.tiles[tile_index].Render(), (x_composite_index, y_composite_index))
+          self.matrix.offscreen_buffer.paste(
+              self.tiles[tile_index].Render(),
+              (x_composite_index, y_composite_index))
           x_composite_index += self.tiles[tile_index].GetTileDiemensions()[0]
           last_tile_index = tile_index
       y_composite_index += self.matrix.tile_size

@@ -10,21 +10,21 @@ import pytz
 import route
 import tile_manager
 import unittest
+import unittest_tiletest
 import weather
 from PIL import Image
 from functools import reduce
 
 
-class TestTileManager(unittest.TestCase):
+class TestTileManager(unittest_tiletest.TileTest):
   """ Test basic tile manager functionality. """
 
   def setUp(self):
     """ Initalize TileManager test setup."""
     self.blank = blank.BlankTile()
-    self.route = route.RouteTile()
-    self.weather = weather.WeatherTile({})
+    self.route = route.RouteTile32x32()
     self.weather_large = weather.WeatherTile64x32({})
-    self.tiles = [self.blank, self.route, self.weather, self.weather_large]
+    self.tiles = [self.blank, self.route, self.weather_large]
     self.manager = tile_manager.TileManager(self.tiles, 32, 2)
 
   def testTileLargerThanMatrix(self):
@@ -34,7 +34,7 @@ class TestTileManager(unittest.TestCase):
 
   def testStaticTileFrameCount(self):
     """ Ensure a static tile has appropriate frame count set. """
-    static_tile = route.RouteTile(scrolling=(0, 0))
+    static_tile = route.RouteTile32x32(scrolling=(0, 0))
     manager = tile_manager.TileManager([static_tile], 32, 2)
     self.assertEqual(manager.tiles[0].GetMaxFrames(), 5)
 
@@ -42,7 +42,7 @@ class TestTileManager(unittest.TestCase):
     """ Ensure the correct tile is returned for GetNextTile. """
     self.manager.tiles[0].displayed = True
     tile_index = self.manager._GetNextTile((32, 32))
-    self.assertIsInstance(self.manager.tiles[tile_index], route.RouteTile)
+    self.assertIsInstance(self.manager.tiles[tile_index], route.RouteTile32x32)
     self.assertTrue(self.manager.tiles[tile_index].displayed)
 
   def testGetNextTileLargeSkipped(self):
@@ -67,38 +67,17 @@ class TestTileManager(unittest.TestCase):
     self.assertFalse(self.manager._AllTilesDisplayed())
 
 
-class TestRenderPipelineTileManager(unittest.TestCase):
+class TestRenderPipelineTileManager(unittest_tiletest.TileTest):
   """ Tests related to verifying the rendering pipeline functionality. """
 
   def setUp(self):
     """ Initalize render pipeline test setup. """
     self.blank = blank.BlankTile()
-    self.route = route.RouteTile()
-    self.weather = weather.WeatherTile({})
+    self.route = route.RouteTile32x32()
     self.weather_large = weather.WeatherTile64x32({})
-    self.tiles = [self.route, self.weather, self.weather_large]
+    self.tiles = [self.route, self.weather_large]
     self.manager = tile_manager.TileManager(self.tiles, 32, 2)
 
-  def AssertCompareImages(self, test, filename):
-    """ Compares a given image object with 'valid' source image using RMS.
-
-    This determines if there is any difference in the image generated versus
-    source of truth, using root mean square. An exact copy will produce
-    a 0. Anything less than 5 is ok, as the PIL library generally will save the
-    file and the color profile will be lightened slighty.
-
-    Args:
-      test: PIL.Image object containing image to test.
-      filename: path to image containing source of truth image.
-
-    Returns:
-      Integer value pertaining to 'sameness'. 0 is an exact match.
-    """
-    h1 = test.histogram()
-    h2 = Image.open(filename).histogram()
-    rms = math.sqrt(reduce(operator.add,
-                           map(lambda a,b: (a-b)**2, h1, h2))/len(h1))
-    self.assertLess(rms, 5)
 
   def testPruneAndTickEmpty(self):
     """ Ensure an empty pipeline works properly. """
@@ -112,7 +91,7 @@ class TestRenderPipelineTileManager(unittest.TestCase):
     self.manager._RenderPruneAndTick()
     self.assertIsInstance(
         self.manager.tiles[self.manager.render_pipeline[0][0]],
-        route.RouteTile)
+        route.RouteTile32x32)
     self.assertEqual(
         self.manager.tiles[self.manager.render_pipeline[0][0]].current_frame, 1)
     self.assertIsNone(self.manager.render_pipeline[0][1])
@@ -123,7 +102,7 @@ class TestRenderPipelineTileManager(unittest.TestCase):
     self.manager._RenderPruneAndTick()
     self.assertIsInstance(
         self.manager.tiles[self.manager.render_pipeline[0][0]],
-        route.RouteTile)
+        route.RouteTile32x32)
     self.assertEqual(
         self.manager.tiles[self.manager.render_pipeline[0][0]].current_frame, 1)
     self.assertIsInstance(
@@ -167,7 +146,7 @@ class TestRenderPipelineTileManager(unittest.TestCase):
 
   def testAddNewTilesLargeNoRoom(self):
     """ Ensure a large tile is not place if there is no room. """
-    tiles = [self.route, self.blank, self.weather, self.weather_large]
+    tiles = [self.route, self.blank, self.weather_large]
     manager = tile_manager.TileManager(tiles, 32, 4)
     manager._RenderAddNewTiles()
     self.assertEqual(manager.render_pipeline, [[0, 1, 2, -1]])
@@ -201,8 +180,8 @@ class TestRenderPipelineTileManager(unittest.TestCase):
     manager = tile_manager.TileManager(tiles, 32, 2)
     self.manager._RenderAddNewTiles()
     self.manager._RenderToMatrix()
-    self.AssertCompareImages(manager.matrix.offscreen_buffer,
-                             'testdata/to_matrix.png')
+    self.AssertSameImage(manager.matrix.offscreen_buffer,
+                         'testdata/to_matrix.png')
 
   def testToMatrixBlankTile(self):
     """ Ensure a blank tile renders properly. """
@@ -210,12 +189,12 @@ class TestRenderPipelineTileManager(unittest.TestCase):
     manager = tile_manager.TileManager(tiles, 32, 2)
     manager._RenderAddNewTiles()  
     manager._RenderToMatrix()
-    self.AssertCompareImages(manager.matrix.offscreen_buffer,
-                             'testdata/to_matrix_blank_tile.png')
+    self.AssertSameImage(manager.matrix.offscreen_buffer,
+                         'testdata/to_matrix_blank_tile.png')
 
   def testToMatrixMultiLine(self):
     """ Ensure a multi line render works properly. """
-    tiles = [self.route, self.weather, weather.WeatherTile64x32({'id': 208,
+    tiles = [self.route, weather.WeatherTile64x32({'id': 208,
                  'main': 'sunny',
                  'description': 'sunny and clear.',
                  'icon': '01d',
@@ -226,14 +205,16 @@ class TestRenderPipelineTileManager(unittest.TestCase):
     manager = tile_manager.TileManager(tiles, 64, 4, tile_size=32)
     manager._RenderAddNewTiles()
     manager._RenderToMatrix()
-    self.AssertCompareImages(manager.matrix.offscreen_buffer,
-                             'testdata/to_matrix_multiline.png')
+    self.AssertSameImage(manager.matrix.offscreen_buffer,
+                         'testdata/to_matrix_multiline.png')
 
 class FullTileManagerTest(unittest.TestCase):
   """ Test the tile manager run loop.
 
   TODO: Implement a Image.save feature in the matrix pipeline to compare
-      expected steps through a 'correctly' displayed image.
+      expected steps through a 'correctly' displayed image. Inject a run
+      save and copy those to testdata, then as it is stepped, export the
+      framebuffer.
   """
 
   def testFullLoop(self):
@@ -250,7 +231,7 @@ class FullTileManagerTest(unittest.TestCase):
         datetime.datetime(2017, 10, 11, 10, 0, tzinfo=pytz.timezone('America/Los_Angeles')),
         datetime.datetime(2017, 11, 11, 11, 0, tzinfo=pytz.timezone('America/Los_Angeles')),
         datetime.datetime(2017, 12, 12, 12, 0, tzinfo=pytz.timezone('America/Los_Angeles'))]
-    tile = route.RouteTile(stops=stops)
+    tile = route.RouteTile32x32(stops=stops)
     manager = tile_manager.TileManager([weather_large, tile], 32, 2)
     manager.Run()
 

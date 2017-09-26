@@ -13,8 +13,8 @@ from PIL import ImageDraw
 from PIL import ImageFont
 
 
-class RouteTile(base_tile.BaseTile):
-  """ Tile used to handle routes and stops.
+class AbstractRouteTile(base_tile.BaseTile):
+  """ Abstract route tile used to handle routes and stops.
 
   Attributes:
     SHORT_TIME: datetime.timedelta any stop from now until this time delta
@@ -60,6 +60,10 @@ class RouteTile(base_tile.BaseTile):
             .astimezone(tz=self.TIME_ZONE)
             .strftime(self.TIME_FORMAT))[0] + 3
 
+
+class RouteTile32x32(AbstractRouteTile):
+  """ 32x32 pixel route tile. """
+
   def _GetRenderSize(self):
     """ Determines the total size of the information rendered within a tile.
 
@@ -93,7 +97,9 @@ class RouteTile(base_tile.BaseTile):
                                 fill=base_tile.BLACK)
     now = datetime.datetime.now(self.TIME_ZONE)
     x = self.x
-    y = route_y = self._RenderText(0, self.y + self.FONT_Y_OFFSET, self.route)[1]
+    y = route_y = self._RenderText(0,
+                                   self.y + self.FONT_Y_OFFSET,
+                                   self.route)[1]
 
     for index, stop in enumerate(self.stops):      
       fill = base_tile.GREEN
