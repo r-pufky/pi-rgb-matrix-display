@@ -24,6 +24,7 @@ try:
   import rgbmatrix
 except ImportError as e:
   logging.error('rgbmatrix.so not found! Loading mock library.')
+  # TODO: redo mocks with options object mock as well.
   import rgbmatrix_mock as rgbmatrix
 
 
@@ -95,7 +96,7 @@ class MatrixInterface(object):
     self.chain_length = chain_length
     self.tile_size = tile_size or led_rows
     self._GetMatrixShape()
-    self._matrix = rgbmatrix.Adafruit_RGBmatrix(led_rows, chain_length)
+    self._matrix = rgbmatrix.RGBMatrix(led_rows, chain_length)
     self._matrix.SetWriteCycles(write_cycles)
     self.offscreen_buffer = Image.new('RGB', (self.width, self.height))
     self.offscreen_draw = ImageDraw.Draw(self.offscreen_buffer)
