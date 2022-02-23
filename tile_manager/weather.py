@@ -2,7 +2,7 @@
 # Weather Tile for Tile Manager.
 #
 
-import base_tile
+from tile_manager import base_tile
 import operator
 import os
 
@@ -17,7 +17,7 @@ class AbstractWeatherTile(base_tile.BaseTile):
   ICON_LIBRARY = (os.path.join(os.path.dirname(os.path.realpath(__file__)),
                                'openweathermap.org-icons'))
 
-  def __init__(self, weather, x=0, y=0, scrolling=(0,0)):
+  def __init__(self, weather, x=0, y=0, scrolling=(0,-2)):
     """ Initalize weather tile.
 
     Args:
@@ -34,7 +34,7 @@ class AbstractWeatherTile(base_tile.BaseTile):
       y: Integer absolute Y position of tile. Default: 0.
       scrolling: Tuple (Integer: X, Integer: Y) containing scrolling
           information. Values are number of pixels to change at once along
-          respective axis. Default: (0, 0) (no scrolling).
+          respective axis. Default: (0, -2) (scrolling up vertically).
     """
     base_tile.BaseTile.__init__(self, x, y, scrolling)
     self.weather = weather

@@ -4,7 +4,7 @@
 # This is an empty tile used for filler.
 #
 
-import base_tile
+from tile_manager import base_tile
 
 
 class BlankTile(base_tile.BaseTile):

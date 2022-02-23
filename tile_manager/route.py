@@ -4,7 +4,7 @@
 # This tile will render a route with stop times to a tile.
 #
 
-import base_tile
+from tile_manager import base_tile
 import datetime
 import math
 import pytz

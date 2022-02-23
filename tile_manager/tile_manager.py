@@ -2,8 +2,8 @@
 # Tile Manager for LED RGB Matrix Display.
 # 
 
-import blank
-import matrix_manager
+from tile_manager import blank
+from tile_manager import matrix_manager
 import time
 
 
